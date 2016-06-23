@@ -23,7 +23,7 @@ Class = {
 obj1 = Class.new()
 obj2 = Class.new()
 
-obj1.set(obj1, 1)
-obj2.set(obj2, 2)
+obj1:set(1)
+obj2:set(2)
 
-print(obj1.get(obj1), obj2.get(obj2))
+print(obj1:get(), obj2:get())
