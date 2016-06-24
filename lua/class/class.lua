@@ -2,13 +2,12 @@
 Class = {
 
     x = 0,
+    name = 'Class',
 
-    new = function()
+    new = function(self)
         local c = {}
-        for k, v in pairs(Class) do
-            c[k] = v
-        end
-        return c
+        self.__index = self
+        return setmetatable(c, self)
     end,
 
     set = function (self, x)
@@ -20,10 +19,25 @@ Class = {
     end,
 }
 
-obj1 = Class.new()
-obj2 = Class.new()
-
+obj1 = Class:new()
+obj2 = Class:new()
 obj1:set(1)
 obj2:set(2)
-
 print(obj1:get(), obj2:get())
+
+SubClass = {
+
+    new = function(self)
+        local c = Class:new()
+        local sc = c:new()
+        return sc
+    end,
+
+    set = function(self)
+        self.x = 0
+    end,
+}
+
+obj3 = SubClass:new()
+obj3:set()
+print(obj3:get())
