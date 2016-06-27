@@ -3,13 +3,15 @@ class Counter:
 
     def __init__(self, func):
         self.func = func
-        self.counter = 0
+        self.count = 0
 
     def __call__(self, arg):
-        self.counter += 1
+        self.count += 1
+        print("{0} has been executed {1} times.".format(self.func.__name__,
+                                                        self.count))
         self.func(arg)
 
 
 @Counter
-def showName(name):
-    print("My name is: {0}.".format(name))
+def function(arg):
+    print("Running function with arg: {0}.".format(arg))
