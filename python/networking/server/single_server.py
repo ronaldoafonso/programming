@@ -28,7 +28,6 @@ def server():
         except Exception as e:
             print('Client {} error: {}.'.format(sc, e))
         print('Question: [{}].'.format(qday.decode('ascii')))
-        time.sleep(2)
         number = days.get(qday, b'0.')
         sc.sendall(number)
         sc.close()
