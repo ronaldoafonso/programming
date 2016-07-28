@@ -8,6 +8,20 @@
 #include <lua5.1/lualib.h>
 
 
+static int l_echo_table(lua_State *L)
+{
+    const char *key = NULL;
+
+    key = luaL_checkstring(L, 1);
+
+    lua_newtable(L);
+    lua_pushstring(L, key);
+    lua_pushstring(L, "value");
+    lua_settable(L, -3);
+
+    return 1;
+}
+
 int main(int argc, char *argv[])
 {
     char buff[256];
@@ -23,6 +37,8 @@ int main(int argc, char *argv[])
 
     if (L) {
         luaL_openlibs(L);
+        lua_pushcfunction(L, l_echo_table);
+        lua_setglobal(L, "lecho");
 
         /* Load variables from a Lua file. */
         if (luaL_loadfile(L, "./variables.lua") || lua_pcall(L, 0, 0, 0)) {
