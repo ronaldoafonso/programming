@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         }
 
         /* Execute a Lua function. */ 
-        if (luaL_loadfile(L, "./func.lua")) {
+        if (luaL_dofile(L, "./func.lua")) {
             fprintf(stderr, "F: %s\n", lua_tostring(L, -1));
         } else {
             lua_getglobal(L, "add");
