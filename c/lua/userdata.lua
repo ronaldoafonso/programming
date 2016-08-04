@@ -3,6 +3,5 @@
 local lud = require("lud")
 
 ud = lud.new()
-lud.set(10)
-n = lud.get()
-print("User data: "..tostring(n))
+ud:set(10)
+print(ud:get())
