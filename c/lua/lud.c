@@ -49,6 +49,21 @@ static int l_get_userdata(lua_State *L)
     return 0;
 }
 
+static int l_print_userdata(lua_State *L)
+{
+    unsigned char *ud = NULL;
+
+    ud = (unsigned char *)luaL_checkudata(L, 1, "UserDataMetaTable");
+
+    if (ud) {
+        lua_pushfstring(L, "UserData: [%d].", *ud);
+        return 1;
+    }
+
+    return 0;
+}
+
+
 
 static const struct luaL_Reg lud[] = {
     {"new", l_new_userdata},
@@ -60,6 +75,8 @@ int luaopen_lud(lua_State *L)
     luaL_newmetatable(L, "UserDataMetaTable");
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
+    lua_pushcfunction(L, l_print_userdata);
+    lua_setfield(L, -2, "__tostring");
     lua_pushcfunction(L, l_set_userdata);
     lua_setfield(L, -2, "set");
     lua_pushcfunction(L, l_get_userdata);
