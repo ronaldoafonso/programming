@@ -8,9 +8,6 @@ local path = "/tmp/usock"
 usock:bind(path)
 usock:listen(5)
 
-function get_data(cli)
-end
-
 while true do
     local conn, err = usock:accept()
     if not err then
