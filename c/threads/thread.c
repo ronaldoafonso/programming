@@ -5,6 +5,10 @@
 #include <pthread.h>
 
 
+
+static int glob = 0;
+static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
 static void *
 thread1(void *arg)
 {
@@ -12,7 +16,11 @@ thread1(void *arg)
     unsigned int *time = (unsigned int *)arg;
 
     for (i = 0; i < 5; i++) {
-        printf("From thread1 - Sleeping ...\n");
+        if (pthread_mutex_lock(&mtx) == 0) {
+            glob++;
+            printf("From thread1 - (Glob %d) - Sleeping ...\n", glob);
+            pthread_mutex_unlock(&mtx);
+        }
         sleep(*time);
     }
 
@@ -26,7 +34,11 @@ thread2(void *arg)
     unsigned int *time = (unsigned int *)arg;
 
     for (i = 0; i < 5; i++) {
-        printf("From thread2 - Sleeping ...\n");
+        if (pthread_mutex_lock(&mtx) == 0) {
+            glob++;
+            printf("From thread2 - (Glob %d) - Sleeping ...\n", glob);
+            pthread_mutex_unlock(&mtx);
+        }
         sleep(*time);
     }
 
