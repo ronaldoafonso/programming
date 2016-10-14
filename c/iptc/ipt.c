@@ -1,74 +1,125 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <libiptc/libiptc.h>
+#include "ipt.h"
 
 
-typedef struct _Entry {
-    struct ipt_entry entry;
-    struct xt_standard_target target;
-} Entry;
-
-int main(int argc, char *argv[])
+static
+int add_ipt_entry(const char *table, const char *chain,
+                  const char *ipaddr, const char *target)
 {
-    struct xtc_handle *handle;
-    unsigned int dst_ip;
+    struct xtc_handle *handle = NULL;
     Entry entry;
-    int rc;
-    const struct ipt_entry *pentry = NULL;
-    struct ipt_counters *cnt;
-    int i = 0;
+    unsigned int ip4addr;
 
-    handle = iptc_init("filter");
+    handle = iptc_init(table);
     if (!handle) {
-        printf("Error: %s.\n", iptc_strerror(errno));
-        exit(EXIT_FAILURE);
+        goto aerror;
     }
 
     memset(&entry, 0, sizeof(Entry));
-
     entry.target.target.u.user.target_size = XT_ALIGN(sizeof(struct xt_standard_target));
-    strncpy(entry.target.target.u.user.name, "ACCEPT", sizeof(entry.target.target.u.user.name));
-
+    strncpy(entry.target.target.u.user.name, target, sizeof(entry.target.target.u.user.name));
     entry.entry.target_offset = sizeof(struct ipt_entry);
     entry.entry.next_offset = entry.entry.target_offset + entry.target.target.u.user.target_size;
-
-    inet_pton(AF_INET, "1.1.1.1", &dst_ip);
-    entry.entry.ip.dst.s_addr = dst_ip;
+    inet_pton(AF_INET, ipaddr, &ip4addr);
+    entry.entry.ip.dst.s_addr = ip4addr;
     entry.entry.ip.dmsk.s_addr = 0xFFFFFFFF;
-
-    rc = iptc_append_entry("OUTPUT", (struct ipt_entry *) &entry, handle);
-    if (!rc) {
-        printf("Error: %s.\n", iptc_strerror(errno));
-        iptc_free(handle);
-        exit(EXIT_FAILURE);
+    if (!iptc_append_entry(chain, (struct ipt_entry *) &entry, handle)) {
+        goto aerror;
     }
 
-    rc = iptc_commit(handle);
-    if (!rc) {
-        printf("Error: %s.\n", iptc_strerror(errno));
-        iptc_free(handle);
-        exit(EXIT_FAILURE);
+    memset(&entry, 0, sizeof(Entry));
+    entry.target.target.u.user.target_size = XT_ALIGN(sizeof(struct xt_standard_target));
+    strncpy(entry.target.target.u.user.name, target, sizeof(entry.target.target.u.user.name));
+    entry.entry.target_offset = sizeof(struct ipt_entry);
+    entry.entry.next_offset = entry.entry.target_offset + entry.target.target.u.user.target_size;
+    inet_pton(AF_INET, ipaddr, &ip4addr);
+    entry.entry.ip.src.s_addr = ip4addr;
+    entry.entry.ip.smsk.s_addr = 0xFFFFFFFF;
+    if (!iptc_append_entry(chain, (struct ipt_entry *) &entry, handle)) {
+        goto aerror;
     }
 
-    printf("Appended rule to: %d.\n", rc);
-
-    pentry = iptc_first_rule("OUTPUT", handle);
-    if (pentry) {
-        do {
-            i += 1;
-            cnt = iptc_read_counter("OUTPUT", i, handle);
-            printf("Entry: %d (packets: %llu, bytes: %llu).\n",
-                                                             i,
-                                                             cnt->pcnt,
-                                                             cnt->bcnt);
-            pentry = iptc_next_rule(pentry, handle);
-        } while (pentry);
+    if (!iptc_commit(handle)) {
+        goto aerror;
     }
+
+    printf("Rule appended.\n");
+    iptc_free(handle);
+    return 0;
+
+aerror:
+    printf("Error (add_ipt): %s.\n", iptc_strerror(errno));
+    if (handle) iptc_free(handle);
+    return 1;
+}
+
+static
+int del_ipt_entry(const char *table, const char *chain,
+                  const char *ipaddr, const char *target)
+{
+    struct xtc_handle *handle = NULL;
+    const struct ipt_entry *pentry;
+    unsigned int ip4addr;
+    int i;
+
+    handle = iptc_init(table);
+    if (!handle) {
+        goto derror;
+    }
+
+    inet_pton(AF_INET, ipaddr, &ip4addr);
+
+    for (i = 0, pentry = iptc_first_rule(chain, handle);
+         pentry;
+         pentry = iptc_next_rule(pentry, handle), i++) {
+        if (pentry->ip.src.s_addr == ip4addr) {
+            if (!iptc_delete_num_entry("OUTPUT", i, handle)) {
+                goto derror;
+            } else {
+                break;
+            }
+        }
+    }
+
+    for (i = 0, pentry = iptc_first_rule(chain, handle);
+         pentry;
+         pentry = iptc_next_rule(pentry, handle), i++) {
+        if (pentry->ip.dst.s_addr == ip4addr) {
+            if (!iptc_delete_num_entry("OUTPUT", i, handle)) {
+                goto derror;
+            } else {
+                break;
+            }
+        }
+    }
+
+    if (!iptc_commit(handle)) {
+        goto derror;
+    }
+
+    iptc_free(handle);
+    return 0;
+
+derror:
+    printf("Error (del_ipt): %s.\n", iptc_strerror(errno));
+    if (handle) iptc_free(handle);
+    return 1;
+}
+
+
+int main(int argc, char *argv[])
+{
+    if (add_ipt_entry("filter", "OUTPUT", "1.1.1.1", "ACCEPT"))
+        goto error;
+    if (add_ipt_entry("filter", "OUTPUT", "2.2.2.2", "ACCEPT"))
+        goto error;
+    if (add_ipt_entry("filter", "OUTPUT", "3.3.3.3", "ACCEPT"))
+        goto error;
+
+    if (del_ipt_entry("filter", "OUTPUT", "2.2.2.2", "ACCEPT"))
+        goto error;
 
     exit(EXIT_SUCCESS);
+error:
+    exit(EXIT_FAILURE);
 }
