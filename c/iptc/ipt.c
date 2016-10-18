@@ -43,7 +43,7 @@ int add_ipt_entry(const char *table, const char *chain,
         goto aerror;
     }
 
-    printf("Rule appended.\n");
+    printf("Add rule: (%s).\n", ipaddr);
     iptc_free(handle);
     return 0;
 
@@ -97,6 +97,7 @@ int del_ipt_entry(const char *table, const char *chain,
         goto derror;
     }
 
+    printf("Del rule: (%s).\n", ipaddr);
     iptc_free(handle);
     return 0;
 
@@ -116,7 +117,11 @@ int main(int argc, char *argv[])
     if (add_ipt_entry("filter", "OUTPUT", "3.3.3.3", "ACCEPT"))
         goto error;
 
+    if (del_ipt_entry("filter", "OUTPUT", "1.1.1.1", "ACCEPT"))
+        goto error;
     if (del_ipt_entry("filter", "OUTPUT", "2.2.2.2", "ACCEPT"))
+        goto error;
+    if (del_ipt_entry("filter", "OUTPUT", "3.3.3.3", "ACCEPT"))
         goto error;
 
     exit(EXIT_SUCCESS);
