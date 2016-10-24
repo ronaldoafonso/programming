@@ -1,8 +1,10 @@
 
 def fibo(n):
-    f = 0
+    f = []
     for i in range(n+1):
-        f = f + i
+        if i <= 1: f.append(i)
+        else:      f.append(f[-1] + f[-2])
+    f = f[-1]
     return f
 
 
