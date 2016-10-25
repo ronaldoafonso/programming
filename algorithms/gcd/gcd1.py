@@ -1,3 +1,4 @@
+# Uses python3
 
 def gcd(a, b):
     d = 0
