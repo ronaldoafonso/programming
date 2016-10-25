@@ -1,3 +1,4 @@
+# Uses python3
 
 def fibo(n):
     f = []
@@ -8,6 +9,9 @@ def fibo(n):
     return f
 
 
-n = int(input())
-f = fibo(n)
-print(f)
+for i in range(0, 46):
+    f = fibo(i)
+    print(f)
+#n = int(input())
+#f = fibo(n)
+#print(f)
