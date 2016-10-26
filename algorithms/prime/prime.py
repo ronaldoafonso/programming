@@ -1,6 +1,7 @@
 
 def is_prime(n):
     prime = 0
+    if n < 2: return False
     for i in range(1, n+1):
         if n % i == 0:
             prime = prime + 1
