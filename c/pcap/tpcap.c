@@ -40,6 +40,11 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (pcap_datalink(handle)!= DLT_IEEE802_11_RADIO) {
+        fprintf(stderr, "Device %s doesn't provide 802.11 headers - not supported.\n", device);
+        exit(EXIT_FAILURE);
+    }
+
     if (pcap_compile(handle, &fp, filter, 1, 0) == -1) {
         fprintf(stderr, "Couldn't parse filter %s: %s.\n", filter, pcap_geterr(handle));
         exit(EXIT_FAILURE);
