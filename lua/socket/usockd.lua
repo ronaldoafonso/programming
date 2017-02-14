@@ -6,6 +6,7 @@ local usock = unix()
 local path = "/tmp/usock"
 
 usock:bind(path)
+usock:settimeout(5)
 usock:listen(5)
 
 while true do
