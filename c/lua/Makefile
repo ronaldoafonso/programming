@@ -2,13 +2,16 @@
 CFLAGS += -Wall
 LDFLAGS += -llua5.1
 
-all: lua lmod.so lud.so
+all: lua func lmod.so lud.so
 
 lua: lua.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o lua lua.o
 
 lua.o: lua.c
 	$(CC) $(CFLAGS) -c -o lua.o lua.c
+
+func.o: func.c
+	$(CC) $(CFLAGS) -c -o func.o func.c
 
 lmod.so: lmod.o
 	$(CC) $(CFLAGS) -shared -o lmod.so lmod.o
@@ -23,4 +26,4 @@ lud.o: lud.c
 	$(CC) $(CFLAGS) -fPIC -c -o lud.o lud.c
 
 clean:
-	rm -f *.o *.so lua
+	rm -f *.o *.so lua func
