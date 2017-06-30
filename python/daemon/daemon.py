@@ -5,6 +5,9 @@ import time
 
 def child():
     os.setsid()
+    pid = os.fork()
+    if pid > 0:
+        os._exit(1)
     time.sleep(10)
 
 def parent():
