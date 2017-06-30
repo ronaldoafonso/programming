@@ -4,12 +4,10 @@ import time
 
 
 def child():
-    for i in range(5):
-        print("I'm running in background and 'init' is my parent!")
-        time.sleep(1)
+    os.setsid()
+    time.sleep(10)
 
 def parent():
-    print("I'm the parent, so let me go!!!")
     os._exit(0)
 
 def demonize():
