@@ -8,6 +8,7 @@ def child():
     pid = os.fork()
     if pid > 0:
         os._exit(1)
+    os.umask(0o0022)
     time.sleep(10)
 
 def parent():
