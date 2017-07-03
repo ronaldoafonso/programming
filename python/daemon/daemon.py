@@ -9,6 +9,7 @@ def child():
     if pid > 0:
         os._exit(1)
     os.umask(0o0022)
+    os.chdir("/")
     time.sleep(10)
 
 def parent():
