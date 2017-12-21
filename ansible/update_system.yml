@@ -5,7 +5,9 @@
     tasks:
       - name: Upgrade all packages
         apt: upgrade=dist update_cache=yes
+        notify: Reboot server
 
+    handlers:
       - name: Reboot server
         command: /sbin/shutdown -r +1
         async: 0
