@@ -1,18 +1,16 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "basic.h"
 
 
 int main(int argc, char *argv[])
 {
-    int i;
+    u_int8_t i8;
+    u_int8_t *pi8;
 
-    printf("Testing for loop: ...\n");
+    i8 = 0x81;
+    pi8 = &i8;
 
-    for (i = 0; i < 5; i++) {
-        printf("Value of i: %d.\n", i);
-    }
+    printf("%x\n", *pi8);
 
     exit(EXIT_SUCCESS);
 }

@@ -5,10 +5,12 @@ LDFLAGS +=
 
 OBJECTS = basic.o
 
+HEADERS = basic.h
+
 
 all: basic
 
-basic: $(OBJECTS)
+basic: $(OBJECTS) $(HEADERS)
 	$(CC) -o basic $(OBJECTS) $(LDFLAGS)
 
 .SUFFIXES:
